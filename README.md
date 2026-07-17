@@ -1,7 +1,7 @@
 # Alpha-Model
 # Equity Alpha Model — Stock Return Predictors in the S&P 500
 
-**Author:** George | University of Nottingham | April 2026
+**Author:** George | University of Nottingham | July 2026
 
 A cross-sectional equity alpha model built from scratch to identify firm-level and macroeconomic predictors of one-month forward stock returns. Data collected via Python (Google Colab), analysis conducted in Stata 18.
 
