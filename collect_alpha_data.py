@@ -1,24 +1,6 @@
-# ============================================================
 #  ALPHA MODEL — AUTOMATED DATA COLLECTION SCRIPT
 #  Pulls: adjusted price, market cap, approx. P/E
 #  Output: alpha_data.xlsx  (ready for Stata)
-# ============================================================
-#
-#  HOW TO RUN THIS FILE (complete beginner steps):
-#
-#  1. Open your terminal / command prompt
-#  2. Type:  pip install yfinance openpyxl pandas
-#     then press Enter and wait for it to finish
-#  3. Save this file somewhere easy, e.g. your Desktop
-#  4. In the terminal, navigate to that folder:
-#       Mac/Linux:  cd ~/Desktop
-#       Windows:    cd C:\Users\YourName\Desktop
-#  5. Type:  python collect_alpha_data.py
-#     then press Enter
-#  6. Wait ~60 seconds — the file alpha_data.xlsx will appear
-#     in the same folder as this script
-#
-# ============================================================
 
 import yfinance as yf
 import pandas as pd
@@ -28,7 +10,7 @@ from openpyxl.utils import get_column_letter
 import warnings
 warnings.filterwarnings("ignore")
 
-# ── 1. SETTINGS ─────────────────────────────────────────────
+# 1. SETTINGS
 START_DATE  = "2020-01-01"
 END_DATE    = "2024-12-31"
 OUTPUT_FILE = "alpha_data.xlsx"
@@ -66,7 +48,7 @@ STOCKS = {
     "AMT":   "Real Estate",
 }
 
-# ── 2. DOWNLOAD DATA ─────────────────────────────────────────
+# 2. DOWNLOAD DATA 
 print("\n========================================")
 print("  ALPHA MODEL DATA COLLECTION SCRIPT")
 print("========================================")
@@ -92,10 +74,6 @@ for i, (ticker, sector) in enumerate(STOCKS.items(), 1):
         hist.index = hist.index.to_period("M").to_timestamp()
         price_series = hist["Close"].dropna()
 
-        # Approximate P/E: price / trailing EPS
-        # EPS is the most recently available trailing 12-month figure.
-        # Because price varies each month, P/E still varies month-to-month.
-        # EPS only refreshes quarterly — disclose this in your alpha report.
         trailing_eps = stock.info.get("trailingEps", None)
         pe_series    = None
         if trailing_eps and trailing_eps > 0:
@@ -124,7 +102,7 @@ for i, (ticker, sector) in enumerate(STOCKS.items(), 1):
         print(f"ERROR — {e}")
         failed.append(ticker)
 
-# ── 3. BUILD DATAFRAME ───────────────────────────────────────
+# 3. BUILD DATAFRAME 
 df = pd.DataFrame(all_rows)
 df = df.sort_values(["ticker", "date"]).reset_index(drop=True)
 
@@ -139,7 +117,7 @@ if df.empty:
     print("ERROR: No data collected. Check your internet connection.")
     exit()
 
-# ── 4. WRITE TO EXCEL WITH FORMATTING ───────────────────────
+# 4. WRITE TO EXCEL WITH FORMATTING─
 print(f"Writing to {OUTPUT_FILE} ...", end=" ")
 
 DARK_NAVY   = "0D1B2A"
@@ -167,7 +145,7 @@ def hdr_cell(c, text, bg=MID_NAVY, sz=9, bold=True):
 
 wb = Workbook()
 
-# ── Sheet 1: Raw_Data ────────────────────────────────────────
+# Sheet 1: Raw_Data 
 ws = wb.active
 ws.title = "Raw_Data"
 ws.sheet_view.showGridLines = False
@@ -220,7 +198,7 @@ for row_idx, row_data in df.iterrows():
         c.font   = Font(name="Arial", size=9,
                         color=DARK_NAVY if ci in (1,2,6) else INPUT_BLUE)
 
-# ── Sheet 2: Summary ─────────────────────────────────────────
+# Sheet 2: Summary 
 ws2 = wb.create_sheet("Summary")
 ws2.sheet_view.showGridLines = False
 for col, w in {"A":3,"B":14,"C":18,"D":12,"E":14,"F":14,"G":16}.items():
@@ -266,7 +244,7 @@ for i, (_, row) in enumerate(summary.iterrows(), 1):
         c.font   = Font(name="Arial", size=9,
                         bold=(ci==2), color=ACCENT_BLUE if ci==2 else "000000")
 
-# ── Sheet 3: Notes on P/E method ────────────────────────────
+# Sheet 3: Notes on P/E method 
 ws3 = wb.create_sheet("Notes_PE_Method")
 ws3.sheet_view.showGridLines = False
 for col, w in {"A":3,"B":26,"C":56}.items():
